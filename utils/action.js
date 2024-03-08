@@ -1,6 +1,7 @@
 'use server'
 
 import OpenAI from "openai";
+import prisma from "./db";
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
@@ -26,12 +27,9 @@ export const generateChatResponse = async(chatMessage)=>{
     }
 }
 
-export const getExsistingTour =  async({city, country})=>{
-    return null;
-}
 export const generateTourResponse =  async({city, country})=>{
     const query = `Find a exact ${city} in this exact ${country}.
-        If ${city} and ${country} exist, create a list of things families can do in this ${city},${country}. 
+    If ${city} and ${country} exist, create a list of things families can do in this ${city},${country}. 
         Once you have a list, create a one-day tour. Response should be  in the following JSON format: 
         {
         "tour": {
@@ -62,6 +60,61 @@ export const generateTourResponse =  async({city, country})=>{
         return null;
     }
 }
+
+export const getExsistingTour =  async({city, country})=>{
+    return prisma.tour.findUnique({
+        where:{
+            city_country:{
+                city,country
+            }
+        }
+    });
+}
+
 export const createNewTour =  async(tour)=>{
-    return null;
+    return prisma.tour.create({
+        data: tour,
+    });
+}
+
+export const getAllTours = async(searchTerm)=>{
+    if(!searchTerm){
+        const tours = await prisma.tour.findMany({
+            orderBy:{
+                city: 'asc'
+            }
+        })
+        return tours
+    }
+    const tours = await prisma.tour.findMany({
+        where:{
+            OR:[
+                {
+                    city:{
+                        contains: searchTerm,
+                        mode: "insensitive"
+                    },
+                },
+                {
+                    country:{
+                        contains: searchTerm,
+                        mode: 'insensitive'
+                    }
+                }
+            ]
+        },
+        orderBy:{
+            city:'asc'
+        }
+    })
+    return tours;
+}
+
+export const getSingleTour = async(id)=>{
+    const tour = await prisma.tour.findFirst({
+        where:{
+            id
+        }
+    })
+    return tour;
 }

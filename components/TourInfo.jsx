@@ -1,4 +1,3 @@
-import React from 'react'
 
 const TourInfo = ({tour}) => {
     const {title, description, stops} = tour
