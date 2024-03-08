@@ -1,1 +1,1 @@
-App live on Vercel : https://nextjs-basic-project-rqbw.vercel.app/
+App live on Vercel : https://nextjs-geniusgpt.vercel.app/
